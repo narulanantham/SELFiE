@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib
 matplotlib.use("TkAgg")
 from matplotlib import pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
 from matplotlib import style
 import matplotlib.image as mpimg
@@ -115,7 +115,7 @@ class HomePage(tk.Frame):
         canvas.draw()
         canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
 
-        toolbar = NavigationToolbar2TkAgg(canvas, self) #Initialize matplotlib toolbar
+        toolbar = NavigationToolbar2Tk(canvas, self) #Initialize matplotlib toolbar
         toolbar.update()
         canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
@@ -218,7 +218,7 @@ class ContinuumPage(tk.Frame):
             happy_bttn_no.destroy()
 
             #Get range of data within +10/-1.5 Angstroms from line center (for CO absorptions)
-            line_wavelengths, line_fluxes, line_errors = get_range(wavelength, flux, flux_err, np.amin(continuum_wavelengths_flattened), np.amax(continuum_wavelengths_flattened))
+            line_wavelengths, line_fluxes, line_errors = lff.get_range(wavelength, flux, flux_err, np.amin(continuum_wavelengths_flattened), np.amax(continuum_wavelengths_flattened))
 
             #Divide data by continuum (obtained from spline fit)
             norm_line_fluxes = line_fluxes / spline_fit(line_wavelengths)
@@ -333,7 +333,7 @@ class ContinuumPage(tk.Frame):
             canvas.mpl_disconnect(cid_red) #Disconnect mouse from canvas
 
             #Extract clean continuum data from full spectrum/append to lists
-            continuum_wavelengths, continuum_fluxes, continuum_errors = get_range(wavelength, flux, flux_err, continuum_left, continuum_right)
+            continuum_wavelengths, continuum_fluxes, continuum_errors = lff.get_range(wavelength, flux, flux_err, continuum_left, continuum_right)
 
             continuum_wavelength_list.append(continuum_wavelengths)
             continuum_flux_list.append(continuum_fluxes)
@@ -397,7 +397,7 @@ class ContinuumPage(tk.Frame):
             #Just want to use this range to set y-axis limits on plot - don't actually want to limit range of spectrum that's plotted (may need to go further than +/- 50 Angstroms to find enough clean continuum regions)
             global cont_wavelengths, cont_fluxes, cont_errors
             #cont_wavelengths, cont_fluxes, cont_errors = get_range(wavelength, flux, flux_err, central_wavelength - 20., central_wavelength + 20.)
-            cont_wavelengths, cont_fluxes, cont_errors = get_range(wavelength, flux, flux_err, central_wavelength - 3., central_wavelength + 3.)
+            cont_wavelengths, cont_fluxes, cont_errors = lff.get_range(wavelength, flux, flux_err, central_wavelength - 3., central_wavelength + 3.)
 
             nan_indices = np.where(np.isnan(cont_fluxes) == True)[0] #Get rid of NaNs (e.g. from masking)
             cont_wavelengths = np.delete(cont_wavelengths, nan_indices)
@@ -444,7 +444,7 @@ class ContinuumPage(tk.Frame):
             canvas.draw()
             canvas.get_tk_widget().pack(side=tk.TOP) #Outputs plot to GUI window
 
-            toolbar = NavigationToolbar2TkAgg(canvas, self) #Initializes matplotlib toolbar
+            toolbar = NavigationToolbar2Tk(canvas, self) #Initializes matplotlib toolbar
             toolbar.update()
             canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=False)
 
@@ -529,7 +529,7 @@ class STISPage(tk.Frame):
             canvas.draw()
             canvas.get_tk_widget().pack(side=tk.TOP) #Outputs plot to GUI window
 
-            toolbar = NavigationToolbar2TkAgg(canvas, self) #Initializes matplotlib toolbar
+            toolbar = NavigationToolbar2Tk(canvas, self) #Initializes matplotlib toolbar
             toolbar.update()
             canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=False)
 
@@ -635,7 +635,7 @@ class COSPage(tk.Frame):
             canvas.draw()
             canvas.get_tk_widget().pack(side=tk.TOP) #Outputs plot to GUI window
 
-            toolbar = NavigationToolbar2TkAgg(canvas, self) #Initializes matplotlib toolbar
+            toolbar = NavigationToolbar2Tk(canvas, self) #Initializes matplotlib toolbar
             toolbar.update()
             canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=False)
 
@@ -809,7 +809,7 @@ class COSPage(tk.Frame):
             #Must put central wavelength from line list file here as initial condition for central line - otherwise, later code will extract variable number of data points for fitting depending on where the user clicked.
             a_params[1] = test_wave
 
-            ltp = "LTP1" #most of the time
+            ltp = "LTP0" #most of the time
             polyorder = 1
 
             a_wavelengths = a_params[range(1, len(a_params)-(polyorder+1), 3)]
